@@ -1,10 +1,10 @@
 {
   "expo": {
-    "name": "newgen-fitcoach",
+    "name": "NextGen FitCoach",
     "slug": "newgen-fitcoach",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/cropped.png",
     "scheme": "newgenfitcoach",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -21,22 +21,30 @@
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/cropped.png"
     },
     "plugins": [
       "expo-router",
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
+          "image": "./assets/images/icon.png",
           "imageWidth": 200,
-          "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
+          "backgroundColor": "#232323"
         }
       ]
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "5fa9a045-41e8-46cf-9e72-9a5adfe6e752"
+      }
+    },
+    "owner": "i_son_lastimosa"
   }
 }
