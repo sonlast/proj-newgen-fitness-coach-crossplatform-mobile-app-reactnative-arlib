@@ -14,6 +14,8 @@ import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 //! Imported modal from react-native-paper
 import { PaperProvider } from 'react-native-paper';
 // import { useColorScheme } from '@/hooks/useColorScheme';
+//! Import RecordingProvider from react-native-audio-recording
+import { RecordingProvider } from '@/utils/RecordingContext';
 import { Colors } from '@/constants/Colors';
 import { Fonts } from '@/constants/Fonts';
 import '@/constants/Sheets';
@@ -42,25 +44,27 @@ export default function RootLayout() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <PaperProvider>
-        <SheetProvider>
-          <BottomSheetModalProvider>
-            <Stack
-              screenOptions={{
-                headerStyle: { backgroundColor: theme.backgroundHeader },
-                animation: 'slide_from_right',
-              }}
-            >
-              <Stack.Screen name="index" options={{ headerShown: false }} />
-              <Stack.Screen name="search" options={{ headerShown: false }} />
-              <Stack.Screen name="demo" options={{ headerShown: false }} />
-              <Stack.Screen name="track" options={{ headerShown: false }} />
-              <Stack.Screen name="+not-found" options={{ headerShown: false }} />
-            </Stack>
-            <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
-          </BottomSheetModalProvider>
-        </SheetProvider>
-      </PaperProvider>
+      <RecordingProvider>
+        <PaperProvider>
+          <SheetProvider>
+            <BottomSheetModalProvider>
+              <Stack
+                screenOptions={{
+                  headerStyle: { backgroundColor: theme.backgroundHeader },
+                  animation: 'slide_from_right',
+                }}
+              >
+                <Stack.Screen name="index" options={{ headerShown: false }} />
+                <Stack.Screen name="search" options={{ headerShown: false }} />
+                <Stack.Screen name="demo" options={{ headerShown: false }} />
+                <Stack.Screen name="track" options={{ headerShown: false }} />
+                <Stack.Screen name="+not-found" options={{ headerShown: false }} />
+              </Stack>
+              <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
+            </BottomSheetModalProvider>
+          </SheetProvider>
+        </PaperProvider>
+      </RecordingProvider>
     </GestureHandlerRootView>
   );
 }

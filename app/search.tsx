@@ -182,7 +182,7 @@ const Search = () => {
             containerStyle={styles.containerStyle}
             inputContainerStyle={styles.inputContainer}
             inputStyle={styles.input}
-            onPressIn={(e) => e.stopPropagation()}
+            onPressIn={(e: any) => e.stopPropagation()}
             rightIcon={
               searching ? (
                 <Pressable

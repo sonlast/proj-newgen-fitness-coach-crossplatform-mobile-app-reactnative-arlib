@@ -4,23 +4,19 @@ import { BottomSheetBackdrop, BottomSheetModal, BottomSheetView } from '@gorhom/
 import { Fonts } from '@/constants/Fonts';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faMicrophone } from '@fortawesome/free-solid-svg-icons';
-import { startRecording, stopRecording } from '@/utils/recording';
-import { Audio } from 'expo-av';
+import { useRecordingContext } from '@/utils/RecordingContext';
 import Loading from '@/components/Loading';
 
 type ModalBottomSheetProps = {
-  // title: string;
-  // onPress: () => void;
-  // children: React.ReactNode;
   onTranscription: (text: string) => void;
   onClose?: () => void;
 };
 
 const ModalBottomSheet = forwardRef<BottomSheetModal, ModalBottomSheetProps>(({ onTranscription, onClose }, ref) => {
+  const { isRecording, startRecording, stopRecording } = useRecordingContext();
+
   const snapPoints = useMemo(() => ['25%'], []); // Changed from 25% to 50% for better visibility
   const scaleAnim = useRef(new Animated.Value(1)).current;
-  const [isRecording, setIsRecording] = useState(false);
-  const [recording, setRecording] = useState<Audio.Recording | null>(null);
   const [isTranscribing, setIsTranscribing] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
   const pulseAnimation = useRef<Animated.CompositeAnimation | null>(null);
@@ -34,13 +30,13 @@ const ModalBottomSheet = forwardRef<BottomSheetModal, ModalBottomSheetProps>(({ 
         pressBehavior="close"
         onPress={() => {
           // Make sure recording is stopped when backdrop is pressed
-          if (isRecording && recording) {
+          if (isRecording) {
             stopAndCleanup(false);
           }
         }}
       />
     ),
-    [isRecording, recording]
+    [isRecording]
   );
 
   const pulse = useCallback(() => {
@@ -68,9 +64,9 @@ const ModalBottomSheet = forwardRef<BottomSheetModal, ModalBottomSheetProps>(({ 
   const stopAndCleanup = async (shouldTranscribe: boolean = true) => {
     try {
       setIsTranscribing(shouldTranscribe);
-      if (recording) {
+      if (isRecording) {
         if (shouldTranscribe) {
-          const filePath = await stopRecording(recording);
+          const filePath = await stopRecording();
 
           const response = await fetch('https://ar-fitcoach.onrender.com/transcribe', {
             method: 'POST',
@@ -95,15 +91,13 @@ const ModalBottomSheet = forwardRef<BottomSheetModal, ModalBottomSheetProps>(({ 
 
           onTranscription(cleanTranscription);
         } else {
-          await recording.stopAndUnloadAsync();
+          await stopRecording();
         }
       }
     } catch (error) {
       console.error('Error stopping recording:', error);
       onTranscription('');
     } finally {
-      setIsRecording(false);
-      setRecording(null);
       setIsTranscribing(false);
       setIsMounted(false);
       onClose?.();
@@ -113,11 +107,7 @@ const ModalBottomSheet = forwardRef<BottomSheetModal, ModalBottomSheetProps>(({ 
   const startRecordingOnMount = async () => {
     try {
       setIsMounted(true);
-      const newRecording: any = await startRecording();
-      if (newRecording) {
-        setRecording(newRecording);
-        setIsRecording(true);
-      }
+      await startRecording();
     } catch (error) {
       console.error('Error starting recording:', error);
       setIsMounted(false);
@@ -153,14 +143,14 @@ const ModalBottomSheet = forwardRef<BottomSheetModal, ModalBottomSheetProps>(({ 
       handleIndicatorStyle={{ backgroundColor: 'transparent' }} // Made the indicator more visible
       backdropComponent={renderBackdrop}
       onDismiss={() => {
-        if (isRecording && recording) {
+        if (isRecording) {
           stopAndCleanup(false);
         }
       }}
       onChange={(index) => {
         if (index === 1) { // Changed from 0 to 1 to match the index prop
           startRecordingOnMount();
-        } else if (index === -1 && isRecording && recording) {
+        } else if (index === -1 && isRecording) {
           stopAndCleanup(false);
         }
       }}

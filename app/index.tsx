@@ -1,8 +1,6 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
-import { Audio } from 'expo-av';
 import { Link, useRouter } from 'expo-router';
-import * as FileSystem from 'expo-file-system';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faMicrophone, faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 import LinearGradient_ from '@/components/LinearGradient_';
@@ -13,39 +11,48 @@ import { PATHS } from '@/constants/Routes';
 import { INITIAL_COLORS, RECORDING_COLORS, STARTING_COLORS } from '@/constants/ColorTimes';
 import { WEBSOCKET_URL, TRANSCRIBE_URL } from '@/constants/URLs';
 import { APPNAME } from '@/constants/AppName';
-import { uploadAudio } from '@/utils/supabase';
 import { ColorState } from '@/types/colorstate';
 import { CONSTANT_COLORS } from '@/constants/Colors';
+import { useRecordingContext } from '@/utils/RecordingContext';
 
 const Index = () => {
+  const { isRecording, startRecording, stopRecording } = useRecordingContext();
   const router = useRouter();
-  const [isRecording, setIsRecording] = useState(false);
-  const [recording, setRecording] = useState<Audio.Recording | null>(null);
   const [colors, setColors] = useState<ColorState>(INITIAL_COLORS);
   const [transcription, setTranscription] = useState('');
+  const [textRecording, setTextRecording] = useState("TAP TO SPEAK");
+  const transcriptionRef = useRef("");
   const [isTranscribing, setIsTranscribing] = useState(false);
+
+  useEffect(() => {
+    transcriptionRef.current = transcription;
+  }, [transcription])
 
   const handleWebSocketMessage = useCallback((event: MessageEvent) => {
     const message = JSON.parse(event.data);
     if (message.type === 'transcription') {
       if (message.data === "End of Transcript") {
         console.log("Transcript completed.");
+        const finalTranscript = transcriptionRef.current.trim();
+        if (finalTranscript) {
+          setIsTranscribing(false);
+          router.push({
+            pathname: PATHS.SEARCH,
+            params: { transcription: finalTranscript }
+          });
+        }
         return;
       }
 
       if (message.data && !message.data.includes("Partial Transcript")) {
         const cleanTranscription = message.data.replace(/[.,;!?]+$/, '').trim();
         setTranscription(cleanTranscription);
-        setIsTranscribing(false);
-        router.push({
-          pathname: PATHS.SEARCH,
-          params: { transcription: cleanTranscription }
-        });
+        console.log('Transcription:', cleanTranscription);
       } else {
         console.log('Partial Transcript:', message.data);
       }
     }
-  }, [router]);
+  }, [router, setIsTranscribing, setTranscription]);
 
   useEffect(() => {
     const ws = new WebSocket(WEBSOCKET_URL);
@@ -60,104 +67,52 @@ const Index = () => {
     return () => ws.close();
   }, [handleWebSocketMessage]);
 
-  const startRecording = async () => {
-    try {
-      const { granted } = await Audio.requestPermissionsAsync();
-      if (!granted) {
-        Alert.alert('Permission to access microphone was denied');
-        return;
-      }
-
-      const recording = new Audio.Recording();
-      await recording.prepareToRecordAsync({
-        ...Audio.RecordingOptionsPresets.HIGH_QUALITY,
-        android: {
-          extension: '.m4a',
-          outputFormat: 2,
-          audioEncoder: 3,
-          sampleRate: 44100,
-          numberOfChannels: 2,
-          bitRate: 128000,
-        },
-        ios: {
-          extension: '.m4a',
-          outputFormat: "aac",
-          audioQuality: 127,
-          sampleRate: 44100,
-          numberOfChannels: 2,
-          bitRate: 128000,
-          linearPCMBitDepth: 16,
-          linearPCMIsBigEndian: false,
-          linearPCMIsFloat: false,
-        },
-        web: {
-          mimeType: 'audio/webm',
-          bitsPerSecond: 128000,
-        },
-      });
-
-      await recording.startAsync();
-      setRecording(recording);
-      setIsRecording(true);
-      setColors(STARTING_COLORS);
-
-      setTimeout(() => {
-        setColors(RECORDING_COLORS);
-      }, 1000);
-    } catch (err) {
-      console.error('Failed to start recording:', err);
-    }
-  };
-
-  const stopRecording = async () => {
-    if (!recording) return;
-
-    try {
+  const handleRecordingPress = async () => {
+    if (isRecording) {
+      // Logic for stopping recording
       setIsTranscribing(true);
       setColors(INITIAL_COLORS);
 
-      await recording.stopAndUnloadAsync();
-      const uri = recording.getURI();
+      try {
+        const filePath = await stopRecording();
+        if (!filePath) {
+          throw new Error("Recording stop failed.");
+        }
 
-      if (!uri) throw new Error("Recording URI is null");
+        const response = await fetch(TRANSCRIBE_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ filePath }),
+        });
 
-      const fileData = await FileSystem.readAsStringAsync(uri, {
-        encoding: FileSystem.EncodingType.Base64,
-      });
-
-      const fileBlob = new Uint8Array(
-        atob(fileData).split("").map((char) => char.charCodeAt(0))
-      );
-
-      const filePath = `recordings/${Date.now()}.m4a`;
-      await uploadAudio(filePath, fileBlob);
-
-      setRecording(null);
-      setIsRecording(false);
-
-      const response = await fetch(TRANSCRIBE_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ filePath }),
-      });
-
-      if (!response.ok) throw new Error('Transcription request failed');
-
-      const data = await response.json();
-      console.log('Transcription:', data.transcription);
-    } catch (err) {
-      console.error('Failed to stop recording:', err);
-      setIsTranscribing(false);
+        if (!response.ok) throw new Error('Transcription request failed');
+        const data = await response.json();
+        console.log('Transcription:', data.transcription);
+      } catch (err) {
+        console.error('Failed to stop recording:', err);
+        Alert.alert('Error', 'Failed to transcribe audio.');
+      } finally {
+        setIsTranscribing(false);
+      }
+    } else {
+      // Logic for starting recording
+      setTranscription('');
+      startRecording();
+      setTextRecording("TAP TO SPEAK");
+      setColors(STARTING_COLORS);
+      setTimeout(() => {
+        setColors(RECORDING_COLORS);
+      }, 1000);
     }
   };
 
   useEffect(() => {
-    Audio.requestPermissionsAsync().then(({ granted }) => {
-      if (!granted) {
-        Alert.alert('Permission to access microphone was denied');
-      }
-    });
-  }, []);
+    if (isRecording) {
+      setColors(RECORDING_COLORS);
+    } else {
+      setColors(INITIAL_COLORS);
+    }
+  }, [isRecording]);
 
   return (
     <View style={styles.container}>
@@ -167,20 +122,18 @@ const Index = () => {
         <Text style={styles.appName2}>{APPNAME.APPNAME2}</Text>
         <Text style={styles.appName}>{APPNAME.APPNAME}</Text>
         <Pressable
-          onPress={isRecording ? stopRecording : startRecording}
+          onPress={handleRecordingPress}
           style={[styles.speakButton, { borderWidth: 3, borderColor: colors.border }]}
         >
           {isTranscribing ? (
-            <Loading
-              loaderStyle={styles.loader}
-            />
+            <Loading loaderStyle={styles.loader} />
           ) : (
             <FontAwesomeIcon icon={faMicrophone} size={50} style={{ color: colors.icon }} />
           )}
         </Pressable>
         <View style={styles.textContainer}>
           <Text style={[styles.miscText, { color: colors.text }]}>
-            {isRecording ? "TAP TO STOP" : "TAP TO SPEAK"}
+            {!isRecording ? textRecording : isRecording ? "TAP TO STOP" : null}
           </Text>
         </View>
         <View style={styles.textContainer}>

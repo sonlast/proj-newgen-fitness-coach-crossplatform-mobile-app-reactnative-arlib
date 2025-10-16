@@ -1,81 +1,90 @@
-import { Audio } from 'expo-av';
-import * as FileSystem from 'expo-file-system';
-import { uploadAudio } from './supabase';
+// import { useEffect, useRef, useState } from 'react';
+// import { useAudioRecorder, AudioModule, RecordingPresets, setAudioModeAsync, useAudioRecorderState } from 'expo-audio';
+// import * as FileSystem from 'expo-file-system';
+// import { uploadAudio } from './supabase';
 
-export const startRecording = async () => {
-  try {
-    const { granted } = await Audio.requestPermissionsAsync();
-    if (!granted) {
-      throw new Error('Permission to record audio was not granted.');
-    }
+// export const useRecording = async () => {
+//   const [isReady, setIsReady] = useState(false);
+//   const audioRecorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
+//   const recorderState = useAudioRecorderState(audioRecorder);
+//   const isMounted = useRef(false);
 
-    await Audio.setAudioModeAsync({
-      allowsRecordingIOS: true,
-      playsInSilentModeIOS: true,
-    });
+//   useEffect(() => {
+//     isMounted.current = true;
+//     (async () => {
+//       try {
+//         const { granted } = await AudioModule.requestRecordingPermissionsAsync();
+//         if (!isMounted.current) return;
+//         if (!granted) {
+//           throw new Error('Permission to record audio was not granted.');
+//         }
 
-    const recording = new Audio.Recording();
-    await recording.prepareToRecordAsync({
-      ...Audio.RecordingOptionsPresets.HIGH_QUALITY,
-      android: {
-        extension: '.m4a',
-        outputFormat: 2,
-        audioEncoder: 3,
-        sampleRate: 44100,
-        numberOfChannels: 2,
-        bitRate: 128000,
-      },
-      ios: {
-        extension: '.m4a',
-        outputFormat: 'aac',
-        audioQuality: 127,
-        sampleRate: 44100,
-        numberOfChannels: 2,  
-        bitRate: 128000,
-        linearPCMBitDepth: 16,
-        linearPCMIsBigEndian: false,
-        linearPCMIsFloat: false,
-      },
-      web: {
-        mimeType: 'audio/webm',
-        bitsPerSecond: 128000,
-      },
-    });
-    await recording.startAsync();
-    return recording;
-  } catch (error) {
-    console.error('Error starting recording:', error);
-  }
-};
+//         await setAudioModeAsync({
+//           allowsRecording: true,
+//           playsInSilentMode: true,
+//         });
 
-export const stopRecording = async (recording: Audio.Recording): Promise<string> => {
-  try {
-    await recording.stopAndUnloadAsync();
-    await Audio.setAudioModeAsync({
-      allowsRecordingIOS: false,
-    });
+//         setIsReady(true);
+//       } catch (error) {
+//         console.error('Error starting recording:', error);
+//       }
+//     })();
 
-    const uri = recording.getURI();
-    if (!uri) {
-      throw new Error('Recording URI is not available.');
-    }
+//     return () => {
+//       isMounted.current = false;
+//     }
+//   }, [])
 
-    const fileData = await FileSystem.readAsStringAsync(uri, {
-      encoding: FileSystem.EncodingType.Base64,
-    });
+//   const startRecording = async () => {
+//     if (!isReady) {
+//       console.warn("Recording is not ready yet.");
+//       return;
+//     }
+//     try {
+//       await audioRecorder.prepareToRecordAsync();
+//       audioRecorder.record();
+//     } catch (error) {
+//       console.error('Error starting recording:', error);
+//     }
+//   }
 
-    const fileBlob = new Uint8Array(
-      atob(fileData).split('').map((char) => char.charCodeAt(0))
-    );
+//   const stopRecording = async (): Promise<string | undefined> => {
+//     try {
+//       if (recorderState.isRecording) {
+//         await audioRecorder.stop;
 
-    const filePath = `recordings/${Date.now()}.m4a`;
-    await uploadAudio(filePath, fileBlob);
+//         const uri = audioRecorder.uri;
+//         if (!uri) {
+//           throw new Error('Recording URI is not available.');
+//         }
 
-    await FileSystem.deleteAsync(uri, {idempotent: true});
+//         const fileData = await FileSystem.readAsStringAsync(uri, {
+//           encoding: FileSystem.EncodingType.Base64,
+//         });
 
-    return filePath;
-  } catch (error) {
-    console.error('Error stopping recording:', error);
-    throw error;
-  }
-}
+//         const fileBlob = new Uint8Array(
+//           atob(fileData).split('').map((char) => char.charCodeAt(0))
+//         );
+
+
+//         const filePath = `recordings/${Date.now()}.m4a`;
+//         await uploadAudio(filePath, fileBlob);
+
+//         await FileSystem.deleteAsync(uri, { idempotent: true });
+
+//         return filePath;
+//       }
+//     } catch (error) {
+//       console.error('Error stopping recording:', error);
+//       throw error;
+//     }
+//   };
+
+//   return {
+//     isReady,
+//     isRecording: recorderState.isRecording,
+//     startRecording,
+//     stopRecording,
+//     uri: audioRecorder.uri,
+//   }
+// };
