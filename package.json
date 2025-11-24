@@ -32,7 +32,6 @@
     "@types/react-test-renderer": "^19.1.0",
     "axios": "^1.10.0",
     "dotenv": "^17.2.0",
-    "eas-cli": "^16.28.0",
     "event-target-polyfill": "^0.0.4",
     "expo": "~53.0.24",
     "expo-audio": "~0.4.9",
