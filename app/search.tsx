@@ -1,14 +1,14 @@
-import React, { Dispatch, SetStateAction, useCallback, useEffect, useRef, useState } from 'react';
-import { Image, Keyboard, Pressable, StyleSheet, SafeAreaView, Text, TouchableWithoutFeedback, View } from 'react-native';
-import { Fonts } from '@/constants/Fonts';
+import BackgroundImage from '@/components/BackgroundImage';
+import LinearGradient_ from '@/components/LinearGradient_';
 import { CONSTANT_COLORS } from '@/constants/Colors';
+import { Fonts } from '@/constants/Fonts';
 import { faClockRotateLeft, faMicrophone, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { Input } from '@rneui/themed';
-import { useLocalSearchParams } from 'expo-router';
-import LinearGradient_ from '@/components/LinearGradient_';
-import BackgroundImage from '@/components/BackgroundImage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useLocalSearchParams } from 'expo-router';
+import React, { Dispatch, SetStateAction, useCallback, useEffect, useRef, useState } from 'react';
+import { Image, Keyboard, Pressable, SafeAreaView, StyleSheet, Text, TouchableWithoutFeedback, View } from 'react-native';
+import { Searchbar } from 'react-native-paper';
 //! MODAL FROM REACT NATIVE BOTTOM SHEET
 import ModalBottomSheet from '@/components/modals/bottom-modals/ModalBottomSheet';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
@@ -17,9 +17,9 @@ import ModalRNPaper from '@/components/modals/pop-up-modals/ModalRNPaper';
 //! USE FLASHLIST
 import { FlashList } from '@shopify/flash-list';
 //! IMPORTS FOR WORKOUTS
-import { WorkoutData } from '@/types/workout';
-import { workoutImages, workouts } from '@/constants/Workout'
 import { APPNAME } from '@/constants/AppName';
+import { workoutImages, workouts } from '@/constants/Workout';
+import { WorkoutData } from '@/types/workout';
 
 type workoutProps = {
   workout: WorkoutData;
@@ -173,7 +173,65 @@ const Search = () => {
         <View style={styles.content}>
           <Text style={styles.appName2}>{APPNAME.APPNAME2}</Text>
           <Text style={styles.appName}>{APPNAME.APPNAME}</Text>
-          <Input
+          <Searchbar
+            placeholder="Search workout..."
+            placeholderTextColor={CONSTANT_COLORS.BLACK}
+            value={searching}
+            onChangeText={updateSearch}
+            onFocus={() => searching === '' && setShowRecent(true)}
+            style={{
+              marginTop: 10,
+              borderRadius: 50,
+              backgroundColor: CONSTANT_COLORS.WHITE,
+              borderWidth: 1,
+              borderColor: CONSTANT_COLORS.ORANGE,
+            }}
+            inputStyle={{
+              fontFamily: Fonts.mainFont,
+              fontSize: 15,
+              color: CONSTANT_COLORS.BLACK,
+            }}
+            right={() => (
+              <View style={{ flexDirection: "row", alignItems: "center" }}>
+                {/* CLEAR ICON (only when typing) */}
+                {searching !== '' && (
+                  <Pressable
+                    onPress={() => {
+                      setSearching('');
+                      setShowRecent(true);
+                    }}
+                    style={{
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      borderRadius: 50,
+                      height: 30,
+                      width: 30,
+                      marginRight: 6,
+                    }}
+                  >
+                    <FontAwesomeIcon icon={faXmark} color="#000" size={20} />
+                  </Pressable>
+                )}
+                {/* MICROPHONE ICON */}
+                <Pressable
+                  onPress={() => handlePresentModalPress()}
+                  style={{
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    backgroundColor: CONSTANT_COLORS.GREEN,
+                    borderRadius: 50,
+                    height: 40,
+                    width: 40,
+                    marginRight: 10,
+                  }}
+                >
+                  <FontAwesomeIcon icon={faMicrophone} color="#fff" size={20} />
+                </Pressable>
+
+              </View>
+            )}
+          />
+          {/* <Input
             placeholder='Search workout...'
             placeholderTextColor={CONSTANT_COLORS.BLACK}
             value={searching}
@@ -225,7 +283,7 @@ const Search = () => {
             autoFocus={false}
             autoComplete='off'
             cursorColor={'#fff'}
-          />
+          /> */}
           {showRecent && recentSearches.length > 0 && (
             <View style={styles.recentSearchesContainer}>
               <View style={styles.recentHeader}>
