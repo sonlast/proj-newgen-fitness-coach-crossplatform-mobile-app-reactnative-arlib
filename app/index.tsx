@@ -1,23 +1,25 @@
-import React, { useEffect, useState, useCallback, useRef } from 'react';
-import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
-import { Link, useRouter } from 'expo-router';
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faMicrophone, faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
-import LinearGradient_ from '@/components/LinearGradient_';
 import BackgroundImage from '@/components/BackgroundImage';
+import LinearGradient_ from '@/components/LinearGradient_';
 import Loading from '@/components/Loading';
+import { APPNAME } from '@/constants/AppName';
+import { CONSTANT_COLORS } from '@/constants/Colors';
+import { INITIAL_COLORS, RECORDING_COLORS, STARTING_COLORS } from '@/constants/ColorTimes';
 import { Fonts } from '@/constants/Fonts';
 import { PATHS } from '@/constants/Routes';
-import { INITIAL_COLORS, RECORDING_COLORS, STARTING_COLORS } from '@/constants/ColorTimes';
-import { WEBSOCKET_URL, TRANSCRIBE_URL } from '@/constants/URLs';
-import { APPNAME } from '@/constants/AppName';
+import { TRANSCRIBE_URL, WEBSOCKET_URL } from '@/constants/URLs';
 import { ColorState } from '@/types/colorstate';
-import { CONSTANT_COLORS } from '@/constants/Colors';
 import { useRecordingContext } from '@/utils/RecordingContext';
+import { faMagnifyingGlass, faMicrophone } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import { useIsFocused } from '@react-navigation/native';
+import { Link, useRouter } from 'expo-router';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 
 const Index = () => {
   const { isRecording, startRecording, stopRecording } = useRecordingContext();
   const router = useRouter();
+  const isFocused = useIsFocused();
   const [colors, setColors] = useState<ColorState>(INITIAL_COLORS);
   const [transcription, setTranscription] = useState('');
   const [textRecording, setTextRecording] = useState("TAP TO SPEAK");
@@ -34,7 +36,7 @@ const Index = () => {
       if (message.data === "End of Transcript") {
         console.log("Transcript completed.");
         const finalTranscript = transcriptionRef.current.trim();
-        if (finalTranscript) {
+        if (finalTranscript && isFocused) {
           setIsTranscribing(false);
           router.push({
             pathname: PATHS.SEARCH,
@@ -52,7 +54,7 @@ const Index = () => {
         console.log('Partial Transcript:', message.data);
       }
     }
-  }, [router, setIsTranscribing, setTranscription]);
+  }, [router, setIsTranscribing, setTranscription, isFocused]);
 
   useEffect(() => {
     const ws = new WebSocket(WEBSOCKET_URL);

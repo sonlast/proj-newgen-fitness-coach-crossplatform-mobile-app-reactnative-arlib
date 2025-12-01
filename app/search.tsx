@@ -2,9 +2,11 @@ import BackgroundImage from '@/components/BackgroundImage';
 import LinearGradient_ from '@/components/LinearGradient_';
 import { CONSTANT_COLORS } from '@/constants/Colors';
 import { Fonts } from '@/constants/Fonts';
+import { WEBSOCKET_URL } from '@/constants/URLs';
 import { faClockRotateLeft, faMicrophone, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect } from '@react-navigation/native';
 import { useLocalSearchParams } from 'expo-router';
 import React, { Dispatch, SetStateAction, useCallback, useEffect, useRef, useState } from 'react';
 import { Image, Keyboard, Pressable, SafeAreaView, StyleSheet, Text, TouchableWithoutFeedback, View } from 'react-native';
@@ -77,6 +79,34 @@ const Search = () => {
     bottomSheetModalRef.current?.dismiss();
   }, []);
 
+  const handleWebSocketMessage = useCallback((event: MessageEvent) => {
+    const message = JSON.parse(event.data);
+    if (message.type === 'transcription') {
+      if (message.data === "End of Transcript") {
+        console.log("Transcript completed.");
+        return;
+      }
+
+      if (message.data && !message.data.includes("Partial Transcript")) {
+        const cleanTranscription = message.data.replace(/[.,;!?]+$/, '').trim();
+        setSearching(cleanTranscription);
+      }
+    }
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      const ws = new WebSocket(WEBSOCKET_URL);
+      ws.onopen = () => console.log('WebSocket connection established in Search');
+      ws.onmessage = handleWebSocketMessage;
+      ws.onerror = (error) => console.error('WebSocket error:', error);
+      ws.onclose = () => console.log('WebSocket connection closed in Search');
+
+      return () => {
+        ws.close();
+      };
+    }, [handleWebSocketMessage])
+  );
 
   useEffect(() => {
     const loadRecentSearches = async () => {
@@ -98,21 +128,21 @@ const Search = () => {
     setShowRecent(searching === '');
   }
 
-  const addToRecentSearches = async (searchTerm: string) => {
+  const addToRecentSearches = useCallback(async (searchTerm: string) => {
     if (!searchTerm.trim()) return;
 
     try {
       const updatedSearches = [
         searchTerm,
         ...recentSearches.filter(item => item.toLowerCase() !== searchTerm.toLowerCase())
-      ].slice(0, 5); // Keep only 5 most recent items
+      ].slice(0, 5);
 
       setRecentSearches(updatedSearches);
       await AsyncStorage.setItem('recentSearches', JSON.stringify(updatedSearches));
     } catch (error) {
       console.error('Error saving recent searches:', error);
     }
-  };
+  }, [recentSearches]);
 
   const handleTranscription = useCallback((text: string) => {
     if (text && text !== 'Real-time transcription in progress') {
