@@ -1,0 +1,9 @@
+appId: com.i_son.lastimosa.newgenfitcoach
+name: NextGen FitCoach E2E Tests
+
+# Platform-specific settings
+env:
+  APP_ID: com.i_son.lastimosa.newgenfitcoach
+
+# Default timeout for assertions (in milliseconds)
+timeout: 10000

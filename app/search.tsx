@@ -33,6 +33,7 @@ const Workout = ({ workout, setSelectedWorkout, setModalVisible }: workoutProps)
   return (
     <View style={styles.workout}>
       <Pressable
+        testID={`workout-${workout.id}`}
         onPress={() => {
           setSelectedWorkout(workout);
           setModalVisible(true);
@@ -204,6 +205,7 @@ const Search = () => {
           <Text style={styles.appName2}>{APPNAME.APPNAME2}</Text>
           <Text style={styles.appName}>{APPNAME.APPNAME}</Text>
           <Searchbar
+            testID="search-input"
             placeholder="Search workout..."
             placeholderTextColor={CONSTANT_COLORS.BLACK}
             value={searching}
@@ -226,6 +228,7 @@ const Search = () => {
                 {/* CLEAR ICON (only when typing) */}
                 {searching !== '' && (
                   <Pressable
+                    testID="search-clear-button"
                     onPress={() => {
                       setSearching('');
                       setShowRecent(true);
@@ -244,6 +247,7 @@ const Search = () => {
                 )}
                 {/* MICROPHONE ICON */}
                 <Pressable
+                  testID="search-mic-button"
                   onPress={() => handlePresentModalPress()}
                   style={{
                     justifyContent: 'center',

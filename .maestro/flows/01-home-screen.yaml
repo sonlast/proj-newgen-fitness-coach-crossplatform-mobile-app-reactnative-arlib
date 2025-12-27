@@ -1,0 +1,42 @@
+appId: com.i_son.lastimosa.newgenfitcoach
+---
+# Test: Home Screen - Voice Recording Interface
+# Description: Validates the home screen UI elements and basic interactions
+
+- launchApp
+
+# Verify app launches successfully
+- assertVisible: "NextGen"
+- assertVisible: "FitCoach"
+
+# Verify main UI elements are visible
+- assertVisible:
+    id: "home-mic-button"
+- assertVisible:
+    id: "home-search-button"
+
+# Verify initial state text
+- assertVisible: "TAP TO SPEAK"
+- assertVisible: "OR"
+- assertVisible: "Search Manually"
+
+# Test microphone button interaction
+- tapOn:
+    id: "home-mic-button"
+
+# After tapping mic button, text should change
+- assertVisible: "TAP TO STOP"
+
+# Stop recording
+- tapOn:
+    id: "home-mic-button"
+
+# Verify we're back to initial state
+- assertVisible: "TAP TO SPEAK"
+
+# Test navigation to search screen
+- tapOn:
+    id: "home-search-button"
+
+# Verify we navigated to search screen
+- assertVisible: "Search workout..."

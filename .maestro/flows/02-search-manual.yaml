@@ -1,0 +1,62 @@
+appId: com.i_son.lastimosa.newgenfitcoach
+---
+# Test: Search Screen - Manual Search Functionality
+# Description: Tests manual text search, filtering, and recent searches
+
+- launchApp
+
+# Navigate to search screen
+- tapOn:
+    id: "home-search-button"
+
+# Verify search screen loaded
+- assertVisible: "NextGen"
+- assertVisible: "FitCoach"
+- assertVisible: "Search workout..."
+
+# Test search input
+- tapOn:
+    id: "search-input"
+
+# Type a search query
+- inputText: "push"
+
+# Verify clear button appears when typing
+- assertVisible:
+    id: "search-clear-button"
+
+# Verify search results appear
+- assertVisible: "Matched"
+
+# Clear the search
+- tapOn:
+    id: "search-clear-button"
+
+# Verify input is cleared
+- assertVisible: "Search workout..."
+
+# Test another search
+- tapOn:
+    id: "search-input"
+- inputText: "squat"
+
+# Verify results
+- assertVisible: "Matched"
+
+# Test microphone button in search
+- assertVisible:
+    id: "search-mic-button"
+
+# Navigate back to test recent searches
+- back
+
+# Go back to search
+- tapOn:
+    id: "home-search-button"
+
+# Tap on search input to show recent searches
+- tapOn:
+    id: "search-input"
+
+# Recent searches should appear (if implemented)
+# Note: This may need adjustment based on actual implementation

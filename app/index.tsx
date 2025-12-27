@@ -124,6 +124,7 @@ const Index = () => {
         <Text style={styles.appName2}>{APPNAME.APPNAME2}</Text>
         <Text style={styles.appName}>{APPNAME.APPNAME}</Text>
         <Pressable
+          testID="home-mic-button"
           onPress={handleRecordingPress}
           style={[styles.speakButton, { borderWidth: 3, borderColor: colors.border }]}
         >
@@ -145,7 +146,7 @@ const Index = () => {
           <Text style={styles.miscText}>Search Manually</Text>
         </View>
         <Link href={PATHS.SEARCH} asChild>
-          <Pressable style={styles.searchButton}>
+          <Pressable testID="home-search-button" style={styles.searchButton}>
             <FontAwesomeIcon icon={faMagnifyingGlass} size={20} style={styles.searchIcon} />
           </Pressable>
         </Link>
