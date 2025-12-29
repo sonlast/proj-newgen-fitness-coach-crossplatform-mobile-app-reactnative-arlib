@@ -1,0 +1,31 @@
+appId: com.i_son.lastimosa.newgenfitcoach
+---
+- tapOn:
+    text: "Search workout..."
+- inputText:
+    text: "Push Ups"
+# - eraseText
+- hideKeyboard
+- tapOn: 
+    text: "Push Ups"
+    index: 1
+- assertVisible:
+    text: "Demo"
+- tapOn:
+    text: "Demo"
+- assertVisible:
+    text: "Start Demo"
+- back
+- tapOn:
+    text: "Push Ups"
+    index: 1
+- assertVisible:
+    text: "Track"
+- tapOn:
+    text: "Track"
+- assertVisible:
+    text: "Start Track"
+- repeat:
+    times: 3
+    commands: 
+      - back

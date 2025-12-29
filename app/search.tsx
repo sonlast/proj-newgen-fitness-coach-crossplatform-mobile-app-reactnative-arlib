@@ -33,7 +33,7 @@ const Workout = ({ workout, setSelectedWorkout, setModalVisible }: workoutProps)
   return (
     <View style={styles.workout}>
       <Pressable
-        testID={`workout-${workout.id}`}
+        testID={`workout-${workout.title.toLowerCase().replace(/\s+/g, '-')}`}
         onPress={() => {
           setSelectedWorkout(workout);
           setModalVisible(true);

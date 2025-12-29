@@ -1,0 +1,30 @@
+appId: com.i_son.lastimosa.newgenfitcoach
+name: home
+---
+- launchApp
+- extendedWaitUntil:
+        visible:
+                text: "NextGen"
+- assertVisible:
+        text: "NextGen"
+- assertVisible:
+        text: "FitCoach"
+- assertVisible:
+        text: "TAP TO SPEAK"
+- tapOn:
+        id: home-mic
+- assertVisible:
+        text: "TAP TO STOP"
+- tapOn:
+        id: home-mic
+- extendedWaitUntil:
+        notVisible:
+                text: "TAP TO SPEAK"
+        timeout: 180000
+- back
+- assertVisible:
+        text: "or"
+- assertVisible:
+        text: "Search Manually"
+- tapOn:
+        id: home-search
