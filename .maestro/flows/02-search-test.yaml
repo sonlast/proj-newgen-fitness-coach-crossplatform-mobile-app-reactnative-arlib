@@ -28,4 +28,4 @@ appId: com.i_son.lastimosa.newgenfitcoach
 - repeat:
     times: 3
     commands: 
-      - back
+    - back
