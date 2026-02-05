@@ -14,15 +14,14 @@ type DemoOrTrackProps = {
 const DemoOrTrack = ({ functionType, cameraFace }: DemoOrTrackProps) => {
   return (
     <View style={styles.container}>
-      <CameraView style={styles.camera} facing={cameraFace as CameraType}>
-        <View style={styles.buttonContainer}>
-          <Pressable style={[styles.button, { borderColor: functionType === FUNCTION_TYPE.DEMO ? CONSTANT_COLORS.ORANGE : CONSTANT_COLORS.GREEN }]}>
-            <Text style={styles.text}>
-              Start {functionType}
-            </Text>
-          </Pressable>
-        </View>
-      </CameraView>
+      <CameraView style={styles.camera} facing={cameraFace as CameraType} />
+      <View style={styles.buttonContainer}>
+        <Pressable style={[styles.button, { borderColor: functionType === FUNCTION_TYPE.DEMO ? CONSTANT_COLORS.ORANGE : CONSTANT_COLORS.GREEN }]}>
+          <Text style={styles.text}>
+            Start {functionType}
+          </Text>
+        </Pressable>
+      </View>
     </View>
   );
 };
@@ -40,10 +39,11 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   buttonContainer: {
-    flex: 1,
+    position: 'absolute',
     flexDirection: 'row',
     backgroundColor: 'transparent',
     margin: 64,
+    bottom: 0,
   },
   button: {
     flex: 1,
