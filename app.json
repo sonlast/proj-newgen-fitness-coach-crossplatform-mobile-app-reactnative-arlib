@@ -4,32 +4,30 @@
     "slug": "newgen-fitcoach",
     "version": "1.0.2",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/adaptive-icon.png",
     "scheme": "newgenfitcoach",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
     "ios": {
       "supportsTablet": true
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/icon.png",
+        "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true,
       "package": "com.i_son.lastimosa.newgenfitcoach"
     },
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./assets/images/cropped.png"
+      "favicon": "./assets/images/adaptive-icon.png"
     },
     "plugins": [
       "expo-router",
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/icon.png",
+          "image": "./assets/images/splash-icon-light.png",
           "imageWidth": 200,
           "backgroundColor": "#232323"
         }
