@@ -5,6 +5,8 @@
 
 A cross-platform mobile fitness coaching application featuring real-time AI voice integrations and personalized tracking, built with React Native.
 
+![GitHub license](https://img.shields.io/github/license/sonlast/proj-newgen-fitness-coach-crossplatform-mobile-app-reactnative-arlib)
+
 ## Description
 
 **NextGen FitCoach** is an innovative fitness coaching application designed to bring an AI-driven personal trainer experience directly to your mobile device. With features such as voice-to-search for workouts, real-time AI guidance, and comprehensive progress tracking, this app aims to make achieving your fitness goals intuitive and seamless.
@@ -38,7 +40,7 @@ To get a local copy up and running, follow these simple steps:
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/your-username/proj-newgen-fitness-coach-crossplatform-mobile-app-reactnative-arlib.git
+   git clone https://github.com/sonlast/proj-newgen-fitness-coach-crossplatform-mobile-app-reactnative-arlib.git
    ```
 
 2. **Navigate into the project directory:**
