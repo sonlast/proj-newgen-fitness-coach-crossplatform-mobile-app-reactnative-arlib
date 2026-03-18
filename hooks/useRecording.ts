@@ -1,14 +1,8 @@
-import { useState, useEffect, useRef } from 'react';
-import { Alert } from 'react-native';
-import {
-  useAudioRecorder,
-  AudioModule,
-  RecordingPresets,
-  setAudioModeAsync,
-  useAudioRecorderState,
-} from 'expo-audio';
-import * as FileSystem from 'expo-file-system';
 import { uploadAudio } from '@/utils/supabase'; // Adjust the import path as needed
+import { AudioModule, RecordingPresets, setAudioModeAsync, useAudioRecorder, useAudioRecorderState } from 'expo-audio';
+import * as FileSystem from 'expo-file-system';
+import { useEffect, useRef, useState } from 'react';
+import { Alert } from 'react-native';
 
 export const useRecording = () => {
   const [isReady, setIsReady] = useState(false);

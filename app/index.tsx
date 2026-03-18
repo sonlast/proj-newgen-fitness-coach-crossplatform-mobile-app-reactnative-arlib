@@ -16,6 +16,14 @@ import { Link, useRouter } from 'expo-router';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 
+export const CustomText = ({text}: {text: string}) => {
+  return (
+    <View style={styles.textContainer}>
+      <Text style={styles.miscText}>{text}</Text>
+    </View>
+  )
+}
+
 const Index = () => {
   const { isRecording, startRecording, stopRecording } = useRecordingContext();
   const router = useRouter();
@@ -142,9 +150,7 @@ const Index = () => {
         <View style={styles.textContainer}>
           <Text style={styles.smallText}>OR</Text>
         </View>
-        <View style={styles.textContainer}>
-          <Text style={styles.miscText}>Search Manually</Text>
-        </View>
+        <CustomText text="Search Manually" />
         <Link href={PATHS.SEARCH} asChild>
           <Pressable testID="home-search" style={styles.searchButton}>
             <FontAwesomeIcon icon={faMagnifyingGlass} size={20} style={styles.searchIcon} />
