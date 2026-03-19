@@ -6,6 +6,7 @@ import { CAMERA_FACES } from '@/constants/CameraFaces';
 import { FUNCTION_TYPE } from '@/constants/FunctionType';
 import DemoOrTrack from '@/components/DemoOrTrack';
 import { startActivityAsync, ActivityAction } from 'expo-intent-launcher';
+import { GLView } from 'expo-gl';
 
 const Demo = () => {
   const [permission, requestPermission] = useCameraPermissions({});
@@ -37,8 +38,23 @@ const Demo = () => {
     );
   }
 
+  const onContextCreate = async (gl: any) => {
+    gl.clearColor(0, 0, 0, 0);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+
+    const render = () => {
+      requestAnimationFrame(render);
+      gl.endFrameEXP();
+    };
+
+    render();
+  }
+
   return (
-    <DemoOrTrack functionType={FUNCTION_TYPE.DEMO} cameraFace={CAMERA_FACES.BACK}/>
+    <View>
+      <DemoOrTrack functionType={FUNCTION_TYPE.DEMO} cameraFace={CAMERA_FACES.BACK} />
+      <GLView style={styles.glOverlay} onContextCreate={onContextCreate} />
+    </View>
   );
 };
 
@@ -70,6 +86,10 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: 'white',
     padding: 10,
+  },
+  glOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'transparent',
   }
 });
 
