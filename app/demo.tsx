@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { Suspense, useEffect } from 'react';
 import { Linking, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useCameraPermissions } from "expo-camera";
 import { Fonts } from '@/constants/Fonts';
@@ -7,6 +7,8 @@ import { FUNCTION_TYPE } from '@/constants/FunctionType';
 import DemoOrTrack from '@/components/DemoOrTrack';
 import { startActivityAsync, ActivityAction } from 'expo-intent-launcher';
 import { GLView } from 'expo-gl';
+import { Canvas } from '@react-three/fiber/native';
+import { useGLTF } from '@react-three/drei/native';
 
 const Demo = () => {
   const [permission, requestPermission] = useCameraPermissions({});
@@ -38,22 +40,53 @@ const Demo = () => {
     );
   }
 
-  const onContextCreate = async (gl: any) => {
-    gl.clearColor(0, 0, 0, 0);
+  const onContextCreate = (gl: any) => {
+    gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
+    gl.clearColor(0, 1, 1, 1);
+
+    // Create vertex shader (shape & position)
+    const vert = gl.createShader(gl.VERTEX_SHADER);
+    gl.shaderSource(
+      vert,
+      `
+    void main(void) {
+      gl_Position = vec4(0.0, 0.0, 0.0, 1.0);
+      gl_PointSize = 150.0;
+    }
+  `
+    );
+    gl.compileShader(vert);
+
+    // Create fragment shader (color)
+    const frag = gl.createShader(gl.FRAGMENT_SHADER);
+    gl.shaderSource(
+      frag,
+      `
+    void main(void) {
+      gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+    }
+  `
+    );
+    gl.compileShader(frag);
+
+    // Link together into a program
+    const program = gl.createProgram();
+    gl.attachShader(program, vert);
+    gl.attachShader(program, frag);
+    gl.linkProgram(program);
+    gl.useProgram(program);
+
     gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.drawArrays(gl.POINTS, 0, 1);
 
-    const render = () => {
-      requestAnimationFrame(render);
-      gl.endFrameEXP();
-    };
-
-    render();
+    gl.flush();
+    gl.endFrameEXP();
   }
 
   return (
-    <View>
+    <View style={styles.container}>
       <DemoOrTrack functionType={FUNCTION_TYPE.DEMO} cameraFace={CAMERA_FACES.BACK} />
-      <GLView style={styles.glOverlay} onContextCreate={onContextCreate} />
+      {/* <GLView style={styles.glOverlay} onContextCreate={onContextCreate} /> */}
     </View>
   );
 };
@@ -88,6 +121,8 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   glOverlay: {
+    width: 300,
+    height: 300,
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'transparent',
   }
