@@ -1,0 +1,131 @@
+import React, { Suspense, useEffect } from 'react';
+import { Linking, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useCameraPermissions } from "expo-camera";
+import { Fonts } from '@/constants/Fonts';
+import { CAMERA_FACES } from '@/constants/CameraFaces';
+import { FUNCTION_TYPE } from '@/constants/FunctionType';
+import DemoOrTrack from '@/components/DemoOrTrack';
+import { startActivityAsync, ActivityAction } from 'expo-intent-launcher';
+import { GLView } from 'expo-gl';
+import { Canvas } from '@react-three/fiber/native';
+import { useGLTF } from '@react-three/drei/native';
+
+const DemoLayout = () => {
+  const [permission, requestPermission] = useCameraPermissions({});
+
+  useEffect(() => {
+    requestPermission();
+  }, []);
+
+  const navigatePermissions = async () => {
+    if (Platform.OS === 'android') {
+      await startActivityAsync(
+        ActivityAction.APPLICATION_DETAILS_SETTINGS,
+        { data: 'package:' + 'com.i_son.lastimosa.fitness_app_ar' }
+      );
+    } else {
+      await Linking.openSettings();
+    }
+  }
+
+  if (!permission?.granted) {
+    return (
+      <View style={styles.container}>
+        <View style={styles.buttonContainer}>
+          <Pressable style={styles.button} onPress={navigatePermissions}>
+            <Text style={styles.fallbackText}>Grant Camera Permissions</Text>
+          </Pressable>
+        </View>
+      </View>
+    );
+  }
+
+  const onContextCreate = (gl: any) => {
+    gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
+    gl.clearColor(0, 1, 1, 1);
+
+    // Create vertex shader (shape & position)
+    const vert = gl.createShader(gl.VERTEX_SHADER);
+    gl.shaderSource(
+      vert,
+      `
+    void main(void) {
+      gl_Position = vec4(0.0, 0.0, 0.0, 1.0);
+      gl_PointSize = 150.0;
+    }
+  `
+    );
+    gl.compileShader(vert);
+
+    // Create fragment shader (color)
+    const frag = gl.createShader(gl.FRAGMENT_SHADER);
+    gl.shaderSource(
+      frag,
+      `
+    void main(void) {
+      gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+    }
+  `
+    );
+    gl.compileShader(frag);
+
+    // Link together into a program
+    const program = gl.createProgram();
+    gl.attachShader(program, vert);
+    gl.attachShader(program, frag);
+    gl.linkProgram(program);
+    gl.useProgram(program);
+
+    gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.drawArrays(gl.POINTS, 0, 1);
+
+    gl.flush();
+    gl.endFrameEXP();
+  }
+
+  return (
+    <View style={styles.container}>
+      <DemoOrTrack functionType={FUNCTION_TYPE.DEMO} cameraFace={CAMERA_FACES.BACK} />
+      {/* <GLView style={styles.glOverlay} onContextCreate={onContextCreate} /> */}
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  buttonContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    backgroundColor: 'transparent',
+    margin: 64,
+  },
+  button: {
+    flex: 1,
+    alignSelf: 'flex-end',
+    alignItems: 'center',
+    backgroundColor: '#000',
+    padding: 10,
+    borderRadius: 10,
+    margin: 5,
+    borderWidth: 1,
+    borderColor: 'white',
+  },
+  fallbackText: {
+    fontSize: 20,
+    fontFamily: Fonts.mainFont,
+    textAlign: 'center',
+    color: 'white',
+    padding: 10,
+  },
+  glOverlay: {
+    width: 300,
+    height: 300,
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'transparent',
+  }
+});
+
+export default DemoLayout;

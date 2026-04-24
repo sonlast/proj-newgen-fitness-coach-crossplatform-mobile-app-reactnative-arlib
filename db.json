@@ -1,0 +1,54 @@
+{
+  "workouts": [
+    {
+      "id": "0",
+      "title": "Push Ups",
+      "workoutDesc": "Push ups are a great way to work out your chest, shoulders, and triceps."
+    },
+    {
+      "id": "1",
+      "title": "Sit Ups",
+      "workoutDesc": "Sit ups are a great way to work out your core."
+    },
+    {
+      "id": "2",
+      "title": "Planks",
+      "workoutDesc": "Planks are a great way to work out your core."
+    },
+    {
+      "id": "3",
+      "title": "Squats",
+      "workoutDesc": "Squats are a great way to work out your legs."
+    },
+    {
+      "id": "5",
+      "title": "Pull Ups",
+      "workoutDesc": "Pull ups are a great way to work out your back and biceps."
+    },
+    {
+      "id": "6",
+      "title": "Lunges",
+      "workoutDesc": "Lunges are a great way to work out your legs."
+    },
+    {
+      "id": "7",
+      "title": "Burpees",
+      "workoutDesc": "Burpees are a great way to work out your whole body."
+    },
+    {
+      "id": "8",
+      "title": "Jumping Jacks",
+      "workoutDesc": "Jumping jacks are a great way to work out your whole body."
+    },
+    {
+      "id": "9",
+      "title": "Mountain Climbers",
+      "workoutDesc": "Mountain climbers are a great way to work out your whole body."
+    },
+    {
+      "id": "10",
+      "title": "High Knees",
+      "workoutDesc": "High knees are a great way to work out your whole body."
+    }
+  ]
+}

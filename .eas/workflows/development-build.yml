@@ -7,3 +7,33 @@ jobs:
     params:
       platform: android
       profile: development
+
+  notify_build:
+    name: Notify Build Status
+    needs: [android_development_build]
+    type: slack
+    params:
+      # PUT WEBHOOK URL in .ENV and access it there
+      webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
+      payload:
+        blocks:
+          - type: header
+            text:
+              type: plain_text
+              text: "Build Completed"
+          - type: section
+            fields:
+              - type: mrkdwn
+                text: "*App:*\n${{ needs.android_development_build.outputs.app_identifier }}"
+              - type: mrkdwn
+                text: "*Version:*\n${{ needs.android_development_build.outputs.app_version }}"
+          - type: section
+            fields:
+              - type: mrkdwn
+                text: "*Build ID:*\n${{ needs.android_development_build.outputs.build_id }}"
+              - type: mrkdwn
+                text: "*Platform:*\n${{ needs.android_development_build.outputs.platform }}"
+          - type: section
+            text:
+              type: mrkdwn
+              text: "Distribution: ${{ needs.android_development_build.outputs.distribution }}"
