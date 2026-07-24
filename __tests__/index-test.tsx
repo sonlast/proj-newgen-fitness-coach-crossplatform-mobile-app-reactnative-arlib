@@ -1,7 +1,7 @@
 import { render } from '@testing-library/react-native';
 import IndexScreen from '../app/index';
 
-describe('<IndexScree />', () => {
+describe('<IndexScreen />', () => {
   test('Text render correctly on IndexScreen', () => {
     const { getByText } = render(<IndexScreen/>);
 
