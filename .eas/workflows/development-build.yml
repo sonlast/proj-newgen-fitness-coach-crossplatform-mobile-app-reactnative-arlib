@@ -1,5 +1,12 @@
 name: Development build
 
+on:
+  app_store_connect:
+    app_version:
+      states:
+        - ready_for_review
+        - waiting_for_review
+
 jobs:
   android_development_build:
     name: Build Android
